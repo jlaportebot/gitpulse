@@ -4,8 +4,8 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "gitpulse"
-version = "0.1.0"
-description = "Beautiful Git activity dashboard in your terminal"
+version = "0.3.0"
+description = "Beautiful Git activity dashboard and analytics in your terminal"
 readme = "README.md"
 license = {text = "MIT"}
 requires-python = ">=3.10"

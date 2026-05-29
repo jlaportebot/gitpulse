@@ -1,23 +1,6 @@
 # 🫀 gitpulse
 
-**Beautiful Git activity dashboard in your terminal.**
-
-A fast, offline CLI tool that analyzes your local git repositories and renders a GitHub-style contribution heatmap, commit stats, author breakdowns, and streak tracking — all from the terminal.
-
-![Python](https://img.shields.io/badge/Python-3.10+-blue)
-![License](https://img.shields.io/badge/License-MIT-green)
-
-## Features
-
-- 📊 **Contribution heatmap** — GitHub-style year view, right in your terminal
-- 📈 **Activity stats** — total commits, insertions/deletions, active days, net lines
-- 🔥 **Streak tracking** — current and longest commit streaks
-- 👤 **Author breakdown** — see who contributes what (bar chart visualization)
-- 📁 **Multi-repo scanning** — point at a directory and aggregate stats across all repos
-- 🎯 **Author filtering** — filter stats by author name or email
-- 📋 **JSON output** — machine-readable output for scripting and integrations
-- ⚡ **Zero dependencies** — pure Python, uses only `git` CLI under the hood
-- 🔒 **Fully offline** — no API calls, no network, your data stays local
+Beautiful Git activity dashboard and analytics in your terminal.
 
 ## Installation
 
@@ -25,117 +8,143 @@ A fast, offline CLI tool that analyzes your local git repositories and renders a
 pip install gitpulse
 ```
 
-Or install from source:
+## Quick Start
 
 ```bash
-git clone https://github.com/jlaportebot/gitpulse.git
-cd gitpulse
-pip install -e .
+# Quick summary of current repo
+gitpulse summary
+
+# Full dashboard view
+gitpulse dashboard
+
+# Contribution heatmap
+gitpulse heatmap
+
+# Detailed author breakdown
+gitpulse authors
+
+# Commit activity over time
+gitpulse timeline
+
+# Hourly and day-of-week patterns
+gitpulse activity
+
+# Compare periods
+gitpulse compare --period 30
+
+# Full report (text or markdown)
+gitpulse report --output markdown
+
+# Repository health assessment
+gitpulse health
+
+# File churn analysis
+gitpulse churn
 ```
 
-## Usage
+## Commands
 
-### Dashboard (default)
+| Command | Description |
+|---------|-------------|
+| `summary` | Quick activity overview (default if no command given) |
+| `dashboard` | Full interactive dashboard with stats, authors, and recent commits |
+| `heatmap` | GitHub-style contribution heatmap (last 52 weeks) |
+| `authors` | Detailed author rankings with sorting by commits, lines, activity |
+| `timeline` | Commit activity over time — monthly or weekly granularity |
+| `activity` | Hour-of-day and day-of-week commit pattern analysis |
+| `compare` | Compare current period vs previous period of equal length |
+| `report` | Comprehensive analysis report in text or markdown |
+| `health` | Repository health assessment with recommendations |
+| `churn` | File and extension churn analysis with collaboration hotspots |
 
-```bash
-# Show dashboard for the current repo
-gitpulse
+## Options
 
-# Show dashboard for a specific repo
-gitpulse /path/to/repo
+All commands support:
 
-# Aggregate stats across all repos in a directory
-gitpulse --repos ~/projects
-```
+| Option | Description |
+|--------|-------------|
+| `path` | Path to a git repo or directory (default: `.`) |
+| `--since` | Start date (`YYYY-MM-DD` or `Nd` for N days ago) |
+| `--until` | End date (`YYYY-MM-DD`, default: today) |
+| `--author` | Filter commits by author name or email |
+| `--repos` | Scan directory for multiple git repos |
+| `--json` | Output results as JSON |
 
-### Contribution Heatmap
+Command-specific options:
 
-```bash
-# GitHub-style heatmap for the last year
-gitpulse --heatmap
-
-# Heatmap for the last 90 days
-gitpulse --heatmap --since 90d
-```
-
-### Date Ranges
-
-```bash
-# Custom date range
-gitpulse --since 2024-01-01 --until 2024-12-31
-
-# Last 30 days
-gitpulse --since 30d
-```
-
-### Author Filter
-
-```bash
-# Only your commits
-gitpulse --author "Your Name"
-```
-
-### JSON Output
-
-```bash
-# Machine-readable output for scripts and CI
-gitpulse --json
-gitpulse --json --repos ~/projects
-```
+- `authors --sort-by {commits,insertions,deletions,net,active_days,recent}` — Sort authors by metric
+- `authors --limit N` — Max authors to show
+- `timeline --granularity {month,week}` — Time bucket size
+- `compare --period N` — Period length in days for comparison
+- `report --output {text,markdown}` — Report output format
+- `churn --sort-by {total,insertions,deletions,commits,authors}` — Sort files by metric
+- `churn --limit N` — Max files to show
 
 ## Examples
 
-### Dashboard output
+```bash
+# Analyze a specific repo for the last 90 days
+gitpulse summary /path/to/repo --since 90d
 
-```
-  ╔══════════════════════════════════════════╗
-  ║          🫀  gitpulse dashboard          ║
-  ╚══════════════════════════════════════════╝
+# Show author rankings sorted by lines added
+gitpulse authors --sort-by insertions --limit 10
 
-  Period:   2024-05-26 → 2025-05-26
+# Weekly commit timeline
+gitpulse timeline --granularity week
 
-  ── Overview ──
-  Total commits:    847
-  Lines added:      +23,456
-  Lines removed:    -12,123
-  Net lines:        +11,333
-  Active days:      156
-  Longest streak:   23 days
-  Current streak:   5 days
+# Compare last 60 days vs previous 60 days
+gitpulse compare --period 60
 
-  ── Top Authors ──
-  You <you@example.com>                   847 ██████████████████████████████
+# Generate markdown report
+gitpulse report --output markdown > report.md
 
-  ── Recent Commits ──
-  a1b2c3d 2025-05-25 14:30 Fix edge case in heatmap renderer
-  e4f5g6h 2025-05-24 09:15 Add multi-repo scanning support
-  ...
-```
+# Repository health check
+gitpulse health
 
-### Heatmap output
+# Most churned files
+gitpulse churn --sort-by total --limit 15
 
-```
-  Contribution Heatmap
+# Scan all repos in a directory
+gitpulse summary ~/projects --repos
 
-      Jun  Jul  Aug  Sep  Oct  Nov  Dec  Jan  Feb  Mar  Apr  May
-  Mon ░▒▓█░▒░▒▓█░▒░▒▓█░▒░▒▓█░▒░▒▓█░▒░▒▓█░▒░▒▓█░▒░▒▓█░▒░▒
-  Wed ░▒▓█░▒░▒▓█░▒░▒▓█░▒░▒▓█░▒░▒▓█░▒░▒▓█░▒░▒▓█░▒░▒▓█░▒░▒
-  Fri ░▒▓█░▒░▒▓█░▒░▒▓█░▒░▒▓█░▒░▒▓█░▒░▒▓█░▒░▒▓█░▒░▒▓█░▒░▒
-  Sun ░▒░▒░▒░▒░▒░▒░▒░▒░▒░▒░▒░▒░▒░▒░▒░▒░▒░▒░▒░▒░▒░▒░▒░▒░▒
-
-    Less ░▒▓█ More
-    847 commits in the last year · 156 active days
+# JSON output for scripting
+gitpulse summary --json | jq '.health'
 ```
 
-## How It Works
+## Health Score
 
-gitpulse runs `git log` with `--numstat` to collect commit metadata and line-level diff stats, then aggregates everything in memory. No API keys, no network access, no external databases — just your local git data.
+The `health` command calculates an activity score (0-100) based on:
 
-## Requirements
+| Component | Weight | Description |
+|-----------|--------|-------------|
+| Frequency | 40 | Active days / total days ratio |
+| Recency | 30 | Days since last commit (decays over 30 days) |
+| Streak | 15 | Longest consecutive-day streak (capped at 30) |
+| Diversity | 15 | Number of unique authors (capped at 5) |
 
-- Python 3.10+
-- Git (installed and in PATH)
+Grades: A (80+), B (60+), C (40+), D (20+), F (<20)
+
+The health check also evaluates:
+- **Bus factor** — minimum authors needed to cover 50% of commits
+- **Churn ratio** — fraction of lines that are deletions (indicates rewriting)
+- **Metadata** — README, LICENSE, CONTRIBUTING, CI config presence
+- **Recommendations** — actionable suggestions based on detected issues
+
+## Churn Analysis
+
+The `churn` command identifies:
+
+- **Most churned files** — files with the highest insertions+deletions, indicating instability or hot development areas
+- **Churn by extension** — which file types see the most change activity
+- **Collaboration hotspots** — files edited by multiple authors, indicating coordination needs or potential conflict zones
+
+## Development
+
+```bash
+pip install -e ".[dev]"
+pytest gitpulse/tests.py -v
+```
 
 ## License
 
-MIT © Jonathan Laporte
+MIT

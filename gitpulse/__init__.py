@@ -1,3 +1,3 @@
-"""gitpulse — Beautiful Git activity dashboard in your terminal."""
+"""gitpulse — Beautiful Git activity dashboard and analytics in your terminal."""
 
-__version__ = "0.1.0"
+__version__ = "0.3.0"
