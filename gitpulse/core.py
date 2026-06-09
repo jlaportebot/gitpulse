@@ -285,6 +285,16 @@ class GitPulse:
 def _parse_iso(s: str) -> datetime:
     """Parse an ISO 8601 datetime string, falling back to now."""
     try:
+        # Handle Python 3.10 compatibility: fromisoformat doesn't support all ISO formats
+        # Remove timezone offset for parsing if present, or use manual parsing
+        if s.endswith("Z"):
+            s = s[:-1] + "+00:00"
+        # Try standard fromisoformat first (Python 3.11+)
         return datetime.fromisoformat(s)
     except (ValueError, TypeError):
-        return datetime.now()
+        # Fallback: parse common ISO format manually
+        try:
+            # Format: 2025-06-01T12:00:00+00:00 or 2025-06-01T12:00:00
+            return datetime.strptime(s[:19], "%Y-%m-%dT%H:%M:%S")
+        except (ValueError, TypeError):
+            return datetime.now()
