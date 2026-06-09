@@ -7,7 +7,6 @@ from pathlib import Path
 
 from .core import GitPulse
 from .heatmap import render_heatmap
-from .stats import RepoStats
 from .display import render_dashboard
 
 
@@ -113,7 +112,10 @@ def _parse_date(value: str, default: datetime) -> datetime:
     try:
         return datetime.strptime(value, "%Y-%m-%d")
     except ValueError:
-        print(f"Error: cannot parse date '{value}'. Use YYYY-MM-DD or Nd format.", file=sys.stderr)
+        print(
+            f"Error: cannot parse date '{value}'. Use YYYY-MM-DD or Nd format.",
+            file=sys.stderr,
+        )
         sys.exit(1)
 
 

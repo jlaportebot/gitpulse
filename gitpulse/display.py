@@ -63,6 +63,7 @@ def render_dashboard(pulse: GitPulse, since: datetime, until: datetime) -> None:
 
 # ANSI helpers
 
+
 def _bold(s: str) -> str:
     return f"\033[1m{s}\033[0m"
 

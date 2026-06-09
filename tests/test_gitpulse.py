@@ -4,7 +4,7 @@ import json
 import os
 import subprocess
 import tempfile
-from datetime import datetime, timedelta
+from datetime import datetime
 from pathlib import Path
 
 from gitpulse.core import GitPulse, Commit, DayActivity
@@ -24,8 +24,12 @@ def _make_repo(tmp: Path) -> Path:
     repo = tmp / "test-repo"
     repo.mkdir(parents=True, exist_ok=True)
     subprocess.run(["git", "init", str(repo)], capture_output=True, check=True)
-    subprocess.run(["git", "-C", str(repo), "config", "user.email", "test@test.com"], check=True)
-    subprocess.run(["git", "-C", str(repo), "config", "user.name", "Test User"], check=True)
+    subprocess.run(
+        ["git", "-C", str(repo), "config", "user.email", "test@test.com"], check=True
+    )
+    subprocess.run(
+        ["git", "-C", str(repo), "config", "user.name", "Test User"], check=True
+    )
 
     # Create a file and commit
     (repo / "hello.txt").write_text("hello\n")
@@ -143,6 +147,7 @@ def test_gitpulse_json_output():
         pulse.analyze()
 
         import io
+
         buf = io.StringIO()
         pulse.to_json(buf)
         data = json.loads(buf.getvalue())

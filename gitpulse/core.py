@@ -3,10 +3,8 @@
 from __future__ import annotations
 
 import json
-import os
-import re
 import subprocess
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 from datetime import datetime, timedelta
 from pathlib import Path
 
@@ -100,9 +98,14 @@ class GitPulse:
         until_fmt = self.until.strftime("%Y-%m-%d")
 
         log_cmd = [
-            "git", "-C", str(repo), "log",
-            "--since", since_fmt,
-            "--until", until_fmt,
+            "git",
+            "-C",
+            str(repo),
+            "log",
+            "--since",
+            since_fmt,
+            "--until",
+            until_fmt,
             "--format=__COMMIT_START__%H|%aI|%aN|%aE|%s",
             "--numstat",
         ]
@@ -157,7 +160,7 @@ class GitPulse:
                     self._record_commit(commit)
 
                 # Strip the marker prefix
-                content = line[len("__COMMIT_START__"):]
+                content = line[len("__COMMIT_START__") :]
                 parts = content.split("|", 4)
                 if len(parts) >= 5:
                     current_hash = parts[0]
