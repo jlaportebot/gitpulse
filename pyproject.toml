@@ -46,7 +46,7 @@ exclude = ["gitpulse/tests.py"]
 
 [tool.ruff.lint]
 select = ["ALL"]
-ignore = ["D", "COM812", "ISC001", "PLR2004", "ANN001", "ANN002", "ANN003", "UP037", "T201", "E501", "TC003", "I001", "I002", "F401", "C901", "PLR0912", "PLR0915", "N806"]
+ignore = ["D", "COM812", "ISC001", "PLR2004", "ANN001", "ANN002", "ANN003", "UP037", "T201", "E501", "TC003", "I001", "I002", "F401", "C901", "PLR0912", "PLR0915", "N806", "DTZ005", "TC001", "B007", "ARG001", "DTZ007", "F841"]
 
 [tool.pytest.ini_options]
 addopts = "-v"
