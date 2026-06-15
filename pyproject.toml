@@ -4,8 +4,8 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "gitpulse"
-version = "0.1.0"
-description = "Beautiful Git activity dashboard in your terminal"
+version = "0.3.0"
+description = "Beautiful Git activity dashboard and analytics in your terminal"
 readme = "README.md"
 license = {text = "MIT"}
 requires-python = ">=3.10"
@@ -29,8 +29,27 @@ classifiers = [
 [project.scripts]
 gitpulse = "gitpulse.cli:main"
 
-[project.optional-dependencies]
-dev = ["pytest>=7.0", "ruff>=0.15"]
+[dependency-groups]
+dev = [
+    "pytest>=7.0",
+    "ruff>=0.5.0",
+    "ty>=0.0.49",
+]
 
 [tool.setuptools.packages.find]
 include = ["gitpulse*"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py310"
+exclude = ["gitpulse/tests.py"]
+
+[tool.ruff.lint]
+select = ["ALL"]
+ignore = ["D", "COM812", "ISC001", "PLR2004", "ANN001", "ANN002", "ANN003", "UP037", "T201", "E501", "TC003", "I001", "I002", "F401", "C901", "PLR0912", "PLR0915", "N806", "DTZ005", "TC001", "B007", "ARG001", "DTZ007", "F841", "FBT002", "PERF401", "S603", "PLW1510", "S607", "PLC0415", "RUF010", "F541", "ANN204", "FBT001", "RUF005", "BLE001", "DTZ901", "C420", "N817"]
+
+[tool.pytest.ini_options]
+addopts = "-v"
+testpaths = ["gitpulse/tests.py"]
+
+[tool.ty]

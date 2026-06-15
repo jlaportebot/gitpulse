@@ -36,9 +36,7 @@ def render_heatmap(pulse: GitPulse, since: datetime, until: datetime) -> None:
             grid[week_idx][day_idx] = activity.commits
 
     # Find max for scaling
-    max_commits = (
-        max(max(col) for col in grid) if any(any(c for c in col) for col in grid) else 1
-    )
+    max_commits = max(max(col) for col in grid) if any(any(c for c in col) for col in grid) else 1
     if max_commits == 0:
         max_commits = 1
 
@@ -77,14 +75,16 @@ def render_heatmap(pulse: GitPulse, since: datetime, until: datetime) -> None:
     low_color = _color(1)
     med_color = _color(2)
     high_color = _color(3)
+    blocks = BLOCKS
     print(
-        f"    Less {less_color}{BLOCKS[0]}\033[0m{low_color}{BLOCKS[1]}\033[0m{med_color}{BLOCKS[2]}\033[0m{high_color}{BLOCKS[3]}\033[0m More"
+        f"    Less {less_color}{blocks[0]}\\033[0m"
+        f"{low_color}{blocks[1]}\\033[0m"
+        f"{med_color}{blocks[2]}\\033[0m"
+        f"{high_color}{blocks[3]}\\033[0m More"
     )
 
     # Stats line
-    print(
-        f"    {pulse.total_commits} commits in the last year · {pulse.active_days} active days"
-    )
+    print(f"    {pulse.total_commits} commits in the last year · {pulse.active_days} active days")
 
 
 def _level(count: int, max_val: int) -> int:
