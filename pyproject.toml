@@ -46,7 +46,7 @@ target-version = "py310"
 [tool.ruff.lint]
 select = ["ALL"]
 ignore = ["D", "COM812", "ISC001"]
-per-file-ignores = { "gitpulse/tests.py" = ["DTZ001", "ANN201", "PLC0415", "ANN001", "ANN002", "ANN003", "ARG001", "ARG002"] }
+per-file-ignores = { "gitpulse/tests.py" = ["DTZ001", "ANN201", "PLC0415", "ANN001", "ANN002", "ANN003", "ARG001", "ARG002", "S101"] }
 
 [tool.pytest.ini_options]
 addopts = "-v"
