@@ -7,19 +7,19 @@ import sys
 from datetime import datetime, timedelta
 from pathlib import Path
 
-from .core import GitPulse
-from .heatmap import render_heatmap
-from .display import render_dashboard
 from .commands import (
-    handle_summary,
-    handle_authors,
-    handle_timeline,
     handle_activity,
-    handle_compare,
-    handle_report,
-    handle_health,
+    handle_authors,
     handle_churn,
+    handle_compare,
+    handle_health,
+    handle_report,
+    handle_summary,
+    handle_timeline,
 )
+from .core import GitPulse
+from .display import render_dashboard
+from .heatmap import render_heatmap
 
 
 def main(argv: list[str] | None = None) -> int:
@@ -189,7 +189,18 @@ def main(argv: list[str] | None = None) -> int:
     _add_common_args(p_dashboard)
 
     # Determine if a subcommand was provided; if not, default to 'summary'
-    COMMANDS = {"summary", "authors", "timeline", "activity", "compare", "report", "health", "churn", "heatmap", "dashboard"}
+    COMMANDS = {
+        "summary",
+        "authors",
+        "timeline",
+        "activity",
+        "compare",
+        "report",
+        "health",
+        "churn",
+        "heatmap",
+        "dashboard",
+    }
     effective_argv = list(argv) if argv else []
     has_subcommand = bool(effective_argv) and effective_argv[0] in COMMANDS
     if not has_subcommand:

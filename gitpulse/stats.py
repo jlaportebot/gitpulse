@@ -77,5 +77,7 @@ class RepoStats:
             top_authors=[
                 (a.name, a.commits)
                 for a in sorted(pulse.authors.values(), key=lambda a: a.commits, reverse=True)[:5]
-            ] if pulse.authors else [],
+            ]
+            if pulse.authors
+            else [],
         )

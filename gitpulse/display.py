@@ -59,10 +59,14 @@ def render_dashboard(pulse: GitPulse, since: datetime, until: datetime) -> None:
 
     # Health hint
     if pulse.health.activity_score > 0:
-        print(f" Health: {_bold(str(pulse.health.activity_score))}/100 (Grade: {pulse.health.health_grade})")
+        print(
+            f" Health: {_bold(str(pulse.health.activity_score))}/100 (Grade: {pulse.health.health_grade})"
+        )
 
     # Hint
-    print(f" Tip: Run {_bold('gitpulse authors')}, {_bold('gitpulse timeline')}, {_bold('gitpulse health')} for more")
+    print(
+        f" Tip: Run {_bold('gitpulse authors')}, {_bold('gitpulse timeline')}, {_bold('gitpulse health')} for more"
+    )
     print()
 
 

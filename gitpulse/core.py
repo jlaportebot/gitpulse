@@ -3,22 +3,22 @@
 from __future__ import annotations
 
 import json
+import re
 import subprocess
-from dataclasses import dataclass
 from datetime import datetime, timedelta
 from pathlib import Path
 
 from .models import (
+    AuthorStats,
+    ChangeType,
     Commit,
     DayActivity,
-    WeekActivity,
-    MonthActivity,
-    AuthorStats,
-    FileChurn,
     ExtensionChurn,
-    RepoHealth,
     FileChange,
-    ChangeType,
+    FileChurn,
+    MonthActivity,
+    RepoHealth,
+    WeekActivity,
 )
 
 
@@ -159,7 +159,7 @@ class GitPulse:
                     )
                     self._record_commit(commit)
 
-                content = line[len("__COMMIT_START__"):]
+                content = line[len("__COMMIT_START__") :]
                 parts = content.split("|", 4)
                 if len(parts) >= 5:
                     current_hash = parts[0]
@@ -360,7 +360,9 @@ class GitPulse:
         if self.commits:
             last_commit_date = max(c.date for c in self.commits)
             # Handle both timezone-aware and naive datetimes
-            now = datetime.now(last_commit_date.tzinfo) if last_commit_date.tzinfo else datetime.now()
+            now = (
+                datetime.now(last_commit_date.tzinfo) if last_commit_date.tzinfo else datetime.now()
+            )
             self.health.freshness_days = (now - last_commit_date).days
 
         if self.total_commits > 0:
@@ -370,9 +372,7 @@ class GitPulse:
 
         # Bus factor: minimum number of authors whose departure would reduce
         # total commits by 50%+
-        sorted_authors = sorted(
-            self.authors.values(), key=lambda a: a.commits, reverse=True
-        )
+        sorted_authors = sorted(self.authors.values(), key=lambda a: a.commits, reverse=True)
         if sorted_authors:
             total = self.total_commits
             accumulated = 0
@@ -394,12 +394,10 @@ class GitPulse:
                 (repo / f).exists() for f in ["README.md", "README.rst", "README.txt", "README"]
             )
             self.health.has_contributing = any(
-                (repo / f).exists()
-                for f in ["CONTRIBUTING.md", "CONTRIBUTING.rst", "CONTRIBUTING"]
+                (repo / f).exists() for f in ["CONTRIBUTING.md", "CONTRIBUTING.rst", "CONTRIBUTING"]
             )
             self.health.has_license = any(
-                (repo / f).exists()
-                for f in ["LICENSE", "LICENSE.md", "LICENSE.txt", "LICENCE"]
+                (repo / f).exists() for f in ["LICENSE", "LICENSE.md", "LICENSE.txt", "LICENCE"]
             )
             self.health.has_ci = (repo / ".github").exists() or (repo / ".travis.yml").exists()
 
@@ -407,7 +405,9 @@ class GitPulse:
             try:
                 result = subprocess.run(
                     ["git", "-C", str(repo), "ls-files"],
-                    capture_output=True, text=True, timeout=10,
+                    capture_output=True,
+                    text=True,
+                    timeout=10,
                 )
                 if result.returncode == 0:
                     files_list = [f for f in result.stdout.strip().split("\n") if f]

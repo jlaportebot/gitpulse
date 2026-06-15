@@ -3,12 +3,13 @@
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-from datetime import datetime, date
+from datetime import datetime
 from enum import Enum
 
 
 class ChangeType(Enum):
     """Type of file change."""
+
     ADD = "A"
     MODIFY = "M"
     DELETE = "D"

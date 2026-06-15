@@ -2,18 +2,14 @@
 
 from __future__ import annotations
 
-import io
-import json
 from datetime import datetime, timedelta
-from pathlib import Path
 
 from .core import GitPulse
-from .models import RepoHealth
 
 
 def handle_summary(pulse: GitPulse, since: datetime, until: datetime) -> None:
     """Show a quick summary of repository activity."""
-    from .display import _bold, _cyan, _green, _red, _yellow, _magenta
+    from .display import _bold, _cyan, _green, _magenta, _red, _yellow
 
     range_str = f"{since.strftime('%Y-%m-%d')} → {until.strftime('%Y-%m-%d')}"
     print()
@@ -38,7 +34,9 @@ def handle_summary(pulse: GitPulse, since: datetime, until: datetime) -> None:
     h = pulse.health
     print(f" Bus factor:      {_yellow(str(h.bus_factor))}")
     print(f" Churn ratio:     {_yellow(f'{h.churn_ratio:.1%}')}")
-    print(f" Last commit:     {_cyan(str(h.freshness_days) + ' days ago') if h.freshness_days > 0 else _green('today')}")
+    print(
+        f" Last commit:     {_cyan(str(h.freshness_days) + ' days ago') if h.freshness_days > 0 else _green('today')}"
+    )
     print()
 
 
@@ -50,7 +48,7 @@ def handle_authors(
     limit: int = 20,
 ) -> None:
     """Show detailed author breakdown."""
-    from .display import _bold, _cyan, _green, _red, _yellow, _magenta
+    from .display import _bold, _cyan, _green, _red, _yellow
 
     print()
     print(_bold(" ╔══════════════════════════════════════════╗"))
@@ -86,7 +84,7 @@ def handle_authors(
         days = len(a.active_days)
         print(
             f" {name:<30} {_cyan(str(a.commits)):>8} {_green(f'+{a.insertions:,}'):>8}"
-            f" {_red(f'-{a.deletions:,}'):>8} {_yellow(net_str):>8} {str(days):>6}"
+            f" {_red(f'-{a.deletions:,}'):>8} {_yellow(net_str):>8} {days!s:>6}"
         )
 
     # Summary line
@@ -94,7 +92,9 @@ def handle_authors(
     total_ins = sum(a.insertions for a in authors_list)
     total_del = sum(a.deletions for a in authors_list)
     print()
-    print(f" {'TOTAL':<30} {_cyan(str(total_commits)):>8} {_green(f'+{total_ins:,}'):>8} {_red(f'-{total_del:,}'):>8}")
+    print(
+        f" {'TOTAL':<30} {_cyan(str(total_commits)):>8} {_green(f'+{total_ins:,}'):>8} {_red(f'-{total_del:,}'):>8}"
+    )
     print()
 
     # Commit distribution bar chart
@@ -115,7 +115,7 @@ def handle_timeline(
     granularity: str = "month",
 ) -> None:
     """Show commit activity over time."""
-    from .display import _bold, _cyan, _green, _red, _yellow
+    from .display import _bold, _cyan, _green, _red
 
     print()
     print(_bold(" ╔══════════════════════════════════════════╗"))
@@ -130,7 +130,9 @@ def handle_timeline(
             print()
             return
 
-        print(f" {'Week':<10} {'Commits':>8} {'Added':>10} {'Removed':>10} {'Days':>6} {'Activity':>30}")
+        print(
+            f" {'Week':<10} {'Commits':>8} {'Added':>10} {'Removed':>10} {'Days':>6} {'Activity':>30}"
+        )
         print(f" {'─' * 10} {'─' * 8} {'─' * 10} {'─' * 10} {'─' * 6} {'─' * 30}")
 
         max_commits = max(w.commits for _, w in buckets) if buckets else 1
@@ -140,7 +142,7 @@ def handle_timeline(
             bar = "█" * bar_len
             print(
                 f" {label:<10} {_cyan(str(w.commits)):>8} {_green(f'+{w.insertions:,}'):>10}"
-                f" {_red(f'-{w.deletions:,}'):>10} {str(w.active_days):>6} {bar}"
+                f" {_red(f'-{w.deletions:,}'):>10} {w.active_days!s:>6} {bar}"
             )
     else:
         buckets = sorted(pulse.monthly.items())
@@ -149,7 +151,9 @@ def handle_timeline(
             print()
             return
 
-        print(f" {'Month':<10} {'Commits':>8} {'Added':>10} {'Removed':>10} {'Days':>6} {'Activity':>30}")
+        print(
+            f" {'Month':<10} {'Commits':>8} {'Added':>10} {'Removed':>10} {'Days':>6} {'Activity':>30}"
+        )
         print(f" {'─' * 10} {'─' * 8} {'─' * 10} {'─' * 10} {'─' * 6} {'─' * 30}")
 
         max_commits = max(m.commits for _, m in buckets) if buckets else 1
@@ -159,7 +163,7 @@ def handle_timeline(
             bar = "█" * bar_len
             print(
                 f" {label:<10} {_cyan(str(m.commits)):>8} {_green(f'+{m.insertions:,}'):>10}"
-                f" {_red(f'-{m.deletions:,}'):>10} {str(m.active_days):>6} {bar}"
+                f" {_red(f'-{m.deletions:,}'):>10} {m.active_days!s:>6} {bar}"
             )
 
     print()
@@ -171,7 +175,7 @@ def handle_activity(
     until: datetime,
 ) -> None:
     """Show hourly and day-of-week activity patterns."""
-    from .display import _bold, _cyan, _green, _red, _yellow, _magenta
+    from .display import _bold, _cyan, _magenta
 
     print()
     print(_bold(" ╔══════════════════════════════════════════╗"))
@@ -185,7 +189,7 @@ def handle_activity(
         return
 
     # Hour-of-day distribution
-    hour_counts: dict[int, int] = {h: 0 for h in range(24)}
+    hour_counts: dict[int, int] = dict.fromkeys(range(24), 0)
     for commit in pulse.commits:
         hour_counts[commit.date.hour] = hour_counts.get(commit.date.hour, 0) + 1
 
@@ -210,7 +214,7 @@ def handle_activity(
     print(_bold(" ── Commits by Day of Week ──"))
     print()
     day_names = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"]
-    day_counts: dict[int, int] = {d: 0 for d in range(7)}
+    day_counts: dict[int, int] = dict.fromkeys(range(7), 0)
     for commit in pulse.commits:
         day_counts[commit.date.weekday()] = day_counts.get(commit.date.weekday(), 0) + 1
 
@@ -223,14 +227,18 @@ def handle_activity(
 
     peak_day_idx = max(day_counts, key=day_counts.get)  # type: ignore[arg-type]
     print()
-    print(f" Most active day: {_magenta(day_names[peak_day_idx])} ({day_counts[peak_day_idx]} commits)")
+    print(
+        f" Most active day: {_magenta(day_names[peak_day_idx])} ({day_counts[peak_day_idx]} commits)"
+    )
 
     # Weekend vs weekday
     weekday_commits = sum(day_counts.get(d, 0) for d in range(5))
     weekend_commits = sum(day_counts.get(d, 0) for d in range(5, 7))
     total = weekday_commits + weekend_commits
     if total > 0:
-        print(f" Weekday: {weekday_commits} ({weekday_commits/total:.0%}) · Weekend: {weekend_commits} ({weekend_commits/total:.0%})")
+        print(
+            f" Weekday: {weekday_commits} ({weekday_commits / total:.0%}) · Weekend: {weekend_commits} ({weekend_commits / total:.0%})"
+        )
     print()
 
 
@@ -241,7 +249,7 @@ def handle_compare(
     period_days: int = 30,
 ) -> None:
     """Compare current period vs previous period of equal length."""
-    from .display import _bold, _cyan, _green, _red, _yellow
+    from .display import _bold, _cyan, _green, _red
 
     print()
     print(_bold(" ╔══════════════════════════════════════════╗"))
@@ -260,6 +268,7 @@ def handle_compare(
     prev_until = since
     prev_since = since - timedelta(days=period_days)
     from .core import GitPulse as GP
+
     prev_pulse = GP(
         path=pulse.path,
         since=prev_since,
@@ -285,7 +294,7 @@ def handle_compare(
         if prev == 0 and cur == 0:
             return "  —"
         if prev == 0:
-            return f"  +∞"
+            return "  +∞"
         change = ((cur - prev) / prev) * 100
         if change >= 0:
             return f"  {_green(f'+{change:.0%}')}"
@@ -293,11 +302,21 @@ def handle_compare(
 
     print(f" {'Metric':<18} {current_label:>12} {prev_label:>12} {'Change':>12}")
     print(f" {'─' * 18} {'─' * 12} {'─' * 12} {'─' * 12}")
-    print(f" {'Commits':<18} {str(current_commits):>12} {str(prev_commits):>12} {_delta(current_commits, prev_commits)}")
-    print(f" {'Insertions':<18} {f'+{current_ins:,}':>12} {f'+{prev_ins:,}':>12} {_delta(current_ins, prev_ins)}")
-    print(f" {'Deletions':<18} {f'-{current_del:,}':>12} {f'-{prev_del:,}':>12} {_delta(current_del, prev_del)}")
-    print(f" {'Active days':<18} {str(current_active):>12} {str(prev_active):>12} {_delta(current_active, prev_active)}")
-    print(f" {'Authors':<18} {str(current_authors):>12} {str(prev_authors):>12} {_delta(current_authors, prev_authors)}")
+    print(
+        f" {'Commits':<18} {current_commits!s:>12} {prev_commits!s:>12} {_delta(current_commits, prev_commits)}"
+    )
+    print(
+        f" {'Insertions':<18} {f'+{current_ins:,}':>12} {f'+{prev_ins:,}':>12} {_delta(current_ins, prev_ins)}"
+    )
+    print(
+        f" {'Deletions':<18} {f'-{current_del:,}':>12} {f'-{prev_del:,}':>12} {_delta(current_del, prev_del)}"
+    )
+    print(
+        f" {'Active days':<18} {current_active!s:>12} {prev_active!s:>12} {_delta(current_active, prev_active)}"
+    )
+    print(
+        f" {'Authors':<18} {current_authors!s:>12} {prev_authors!s:>12} {_delta(current_authors, prev_authors)}"
+    )
 
     # Visual comparison
     print()
@@ -312,7 +331,7 @@ def handle_compare(
         cur_bar = "█" * int(cur / max(max_val, 1) * 25)
         prev_bar = "░" * int(prev / max(max_val, 1) * 25)
         print(f" {name:<12} {_green(cur_bar)} {_cyan(str(cur))}")
-        print(f" {'':>12} {_red(prev_bar)} {str(prev)}")
+        print(f" {'':>12} {_red(prev_bar)} {prev!s}")
     print()
 
 
@@ -323,7 +342,7 @@ def handle_report(
     output: str = "text",
 ) -> None:
     """Generate a comprehensive text or markdown report."""
-    from .display import _bold, _cyan, _green, _red, _yellow, _magenta
+    from .display import _bold
 
     if output == "markdown":
         _report_markdown(pulse, since, until)
@@ -385,15 +404,21 @@ def handle_report(
         print(_bold(" ── Most Churned Files ──"))
         sorted_churn = sorted(pulse.file_churn.values(), key=lambda f: f.total_churn, reverse=True)
         for fc in sorted_churn[:10]:
-            print(f" {fc.path:<40} churn={fc.total_churn:,}  +{fc.insertions:,}/-{fc.deletions:,}  ({fc.commits} commits, {len(fc.authors)} authors)")
+            print(
+                f" {fc.path:<40} churn={fc.total_churn:,}  +{fc.insertions:,}/-{fc.deletions:,}  ({fc.commits} commits, {len(fc.authors)} authors)"
+            )
         print()
 
     # Extension breakdown
     if pulse.extension_churn:
         print(_bold(" ── By Extension ──"))
-        sorted_ext = sorted(pulse.extension_churn.values(), key=lambda e: e.total_churn, reverse=True)
+        sorted_ext = sorted(
+            pulse.extension_churn.values(), key=lambda e: e.total_churn, reverse=True
+        )
         for ec in sorted_ext[:10]:
-            print(f" .{ec.extension:<10} churn={ec.total_churn:,}  +{ec.insertions:,}/-{ec.deletions:,}  ({ec.files} files)")
+            print(
+                f" .{ec.extension:<10} churn={ec.total_churn:,}  +{ec.insertions:,}/-{ec.deletions:,}  ({ec.files} files)"
+            )
         print()
 
     # Monthly breakdown
@@ -403,7 +428,9 @@ def handle_report(
         print(f" {'Month':<10} {'Commits':>8} {'Added':>10} {'Removed':>10} {'Days':>6}")
         print(f" {'─' * 10} {'─' * 8} {'─' * 10} {'─' * 10} {'─' * 6}")
         for m in sorted_months:
-            print(f" {m.label:<10} {str(m.commits):>8} {f'+{m.insertions:,}':>10} {f'-{m.deletions:,}':>10} {str(m.active_days):>6}")
+            print(
+                f" {m.label:<10} {m.commits!s:>8} {f'+{m.insertions:,}':>10} {f'-{m.deletions:,}':>10} {m.active_days!s:>6}"
+            )
         print()
 
 
@@ -423,8 +450,8 @@ def _report_markdown(pulse: GitPulse, since: datetime, until: datetime) -> None:
     net_str = f"+{net:,}" if net >= 0 else f"{net:,}"
     print("## Overview")
     print()
-    print(f"| Metric | Value |")
-    print(f"|--------|-------|")
+    print("| Metric | Value |")
+    print("|--------|-------|")
     print(f"| Total commits | {pulse.total_commits:,} |")
     print(f"| Lines added | +{pulse.total_insertions:,} |")
     print(f"| Lines removed | -{pulse.total_deletions:,} |")
@@ -439,8 +466,8 @@ def _report_markdown(pulse: GitPulse, since: datetime, until: datetime) -> None:
     h = pulse.health
     print("## Health")
     print()
-    print(f"| Metric | Value |")
-    print(f"|--------|-------|")
+    print("| Metric | Value |")
+    print("|--------|-------|")
     print(f"| Activity score | {h.activity_score}/100 ({h.health_grade}) |")
     print(f"| Bus factor | {h.bus_factor} |")
     print(f"| Churn ratio | {h.churn_ratio:.1%} |")
@@ -454,8 +481,8 @@ def _report_markdown(pulse: GitPulse, since: datetime, until: datetime) -> None:
     if pulse.authors:
         print("## Top Authors")
         print()
-        print(f"| Author | Commits | Added | Removed |")
-        print(f"|--------|---------|-------|---------|")
+        print("| Author | Commits | Added | Removed |")
+        print("|--------|---------|-------|---------|")
         sorted_authors = sorted(pulse.authors.values(), key=lambda a: a.commits, reverse=True)
         for a in sorted_authors[:10]:
             print(f"| {a.name} | {a.commits} | +{a.insertions:,} | -{a.deletions:,} |")
@@ -465,22 +492,26 @@ def _report_markdown(pulse: GitPulse, since: datetime, until: datetime) -> None:
     if pulse.file_churn:
         print("## Most Churned Files")
         print()
-        print(f"| File | Churn | Added | Removed | Commits |")
-        print(f"|------|-------|-------|---------|---------|")
+        print("| File | Churn | Added | Removed | Commits |")
+        print("|------|-------|-------|---------|---------|")
         sorted_churn = sorted(pulse.file_churn.values(), key=lambda f: f.total_churn, reverse=True)
         for fc in sorted_churn[:10]:
-            print(f"| `{fc.path}` | {fc.total_churn:,} | +{fc.insertions:,} | -{fc.deletions:,} | {fc.commits} |")
+            print(
+                f"| `{fc.path}` | {fc.total_churn:,} | +{fc.insertions:,} | -{fc.deletions:,} | {fc.commits} |"
+            )
         print()
 
     # Monthly breakdown
     if pulse.monthly:
         print("## Monthly Breakdown")
         print()
-        print(f"| Month | Commits | Added | Removed | Active Days |")
-        print(f"|-------|---------|-------|---------|-------------|")
+        print("| Month | Commits | Added | Removed | Active Days |")
+        print("|-------|---------|-------|---------|-------------|")
         sorted_months = sorted(pulse.monthly.values(), key=lambda m: (m.year, m.month))
         for m in sorted_months:
-            print(f"| {m.label} | {m.commits} | +{m.insertions:,} | -{m.deletions:,} | {m.active_days} |")
+            print(
+                f"| {m.label} | {m.commits} | +{m.insertions:,} | -{m.deletions:,} | {m.active_days} |"
+            )
         print()
 
 
@@ -490,7 +521,7 @@ def handle_health(
     until: datetime,
 ) -> None:
     """Show repository health assessment."""
-    from .display import _bold, _cyan, _green, _red, _yellow, _magenta
+    from .display import _bold, _green, _red, _yellow
 
     h = pulse.health
 
@@ -518,7 +549,9 @@ def handle_health(
         recency_score = max(0, 30 - h.freshness_days) / 30 * 30
         streak_score = min(h.longest_streak / 30, 1.0) * 15
         diversity_score = min(h.unique_authors / 5, 1.0) * 15
-        print(f" Frequency:  {frequency_score:.0f}/40  (active {h.active_days} of {h.total_days} days)")
+        print(
+            f" Frequency:  {frequency_score:.0f}/40  (active {h.active_days} of {h.total_days} days)"
+        )
         print(f" Recency:    {recency_score:.0f}/30  ({h.freshness_days} days since last commit)")
         print(f" Streak:     {streak_score:.0f}/15  (longest: {h.longest_streak} days)")
         print(f" Diversity:  {diversity_score:.0f}/15  ({h.unique_authors} authors)")
@@ -539,7 +572,7 @@ def handle_health(
             marker = " ◄── 50% threshold" if not shown and accumulated >= total * 0.5 else ""
             if not shown and accumulated >= total * 0.5:
                 shown = True
-            print(f"  {i+1}. {a.name:<25} {a.commits:>5} commits ({pct:.0%}){marker}")
+            print(f"  {i + 1}. {a.name:<25} {a.commits:>5} commits ({pct:.0%}){marker}")
     print()
 
     # Churn Analysis
@@ -548,7 +581,9 @@ def handle_health(
     print(f" Churn ratio: {churn_color(f'{h.churn_ratio:.1%}')}")
     total_lines = pulse.total_insertions + pulse.total_deletions
     if total_lines > 0:
-        print(f" Stable lines: {pulse.total_insertions - pulse.total_deletions:,} of {total_lines:,} total touched")
+        print(
+            f" Stable lines: {pulse.total_insertions - pulse.total_deletions:,} of {total_lines:,} total touched"
+        )
     print()
 
     # Repo metadata
@@ -583,7 +618,9 @@ def handle_health(
     if h.churn_ratio > 0.5:
         recs.append("High churn ratio — consider stabilizing frequently rewritten files")
     if h.freshness_days > 90:
-        recs.append(f"Repo has been inactive for {h.freshness_days} days — consider archiving or updating")
+        recs.append(
+            f"Repo has been inactive for {h.freshness_days} days — consider archiving or updating"
+        )
     if not recs:
         recs.append("Repository looks healthy! Keep up the good work.")
     for rec in recs:
@@ -599,7 +636,7 @@ def handle_churn(
     limit: int = 20,
 ) -> None:
     """Show file and extension churn analysis."""
-    from .display import _bold, _cyan, _green, _red, _yellow
+    from .display import _bold, _green, _red, _yellow
 
     print()
     print(_bold(" ╔══════════════════════════════════════════╗"))
@@ -621,14 +658,16 @@ def handle_churn(
 
         print(_bold(" ── Most Churned Files ──"))
         print()
-        print(f" {'File':<40} {'Churn':>8} {'Added':>8} {'Removed':>8} {'Commits':>8} {'Authors':>8}")
+        print(
+            f" {'File':<40} {'Churn':>8} {'Added':>8} {'Removed':>8} {'Commits':>8} {'Authors':>8}"
+        )
         print(f" {'─' * 40} {'─' * 8} {'─' * 8} {'─' * 8} {'─' * 8} {'─' * 8}")
 
         for fc in sorted_files[:limit]:
             path = fc.path[:38] if len(fc.path) > 38 else fc.path
             print(
                 f" {path:<40} {_yellow(str(fc.total_churn)):>8} {_green(f'+{fc.insertions:,}'):>8}"
-                f" {_red(f'-{fc.deletions:,}'):>8} {str(fc.commits):>8} {str(len(fc.authors)):>8}"
+                f" {_red(f'-{fc.deletions:,}'):>8} {fc.commits!s:>8} {len(fc.authors)!s:>8}"
             )
 
         # Visual bar
@@ -643,7 +682,9 @@ def handle_churn(
 
     # Extension churn
     if pulse.extension_churn:
-        sorted_ext = sorted(pulse.extension_churn.values(), key=lambda e: e.total_churn, reverse=True)
+        sorted_ext = sorted(
+            pulse.extension_churn.values(), key=lambda e: e.total_churn, reverse=True
+        )
 
         print(_bold(" ── Churn by Extension ──"))
         print()
@@ -653,19 +694,17 @@ def handle_churn(
         for ec in sorted_ext[:15]:
             print(
                 f" .{ec.extension:<11} {_yellow(str(ec.total_churn)):>10} {_green(f'+{ec.insertions:,}'):>10}"
-                f" {_red(f'-{ec.deletions:,}'):>10} {str(ec.files):>8}"
+                f" {_red(f'-{ec.deletions:,}'):>10} {ec.files!s:>8}"
             )
         print()
 
     # Hotspots: files edited by many authors
     if pulse.file_churn:
-        multi_author = [
-            f for f in pulse.file_churn.values() if len(f.authors) > 1
-        ]
+        multi_author = [f for f in pulse.file_churn.values() if len(f.authors) > 1]
         if multi_author:
             multi_author.sort(key=lambda f: len(f.authors), reverse=True)
             print(_bold(" ── Collaboration Hotspots ──"))
-            print(f" Files edited by multiple authors (potential coordination points):")
+            print(" Files edited by multiple authors (potential coordination points):")
             print()
             for fc in multi_author[:10]:
                 path = fc.path[:45] if len(fc.path) > 45 else fc.path
