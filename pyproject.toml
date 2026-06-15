@@ -53,6 +53,3 @@ addopts = "-v"
 testpaths = ["gitpulse/tests.py"]
 
 [tool.ty]
-src = [
-    { path = "gitpulse" },
-]
