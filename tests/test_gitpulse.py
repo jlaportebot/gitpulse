@@ -18,7 +18,6 @@ from gitpulse.models import (
     RepoHealth,
     FileChange,
     ChangeType,
-    WeekActivity,
     MonthActivity,
 )
 
@@ -37,12 +36,8 @@ def _make_repo(tmp: Path) -> Path:
     repo = tmp / "test-repo"
     repo.mkdir(parents=True, exist_ok=True)
     subprocess.run(["git", "init", str(repo)], capture_output=True, check=True)
-    subprocess.run(
-        ["git", "-C", str(repo), "config", "user.email", "test@test.com"], check=True
-    )
-    subprocess.run(
-        ["git", "-C", str(repo), "config", "user.name", "Test User"], check=True
-    )
+    subprocess.run(["git", "-C", str(repo), "config", "user.email", "test@test.com"], check=True)
+    subprocess.run(["git", "-C", str(repo), "config", "user.name", "Test User"], check=True)
 
     # Create a file and commit
     (repo / "hello.txt").write_text("hello\n")
@@ -356,15 +351,21 @@ def test_repo_health_grade():
     """Test RepoHealth grade thresholds."""
     # High score → A or B
     h_good = RepoHealth(
-        active_days=300, total_days=365, freshness_days=1,
-        longest_streak=60, unique_authors=5,
+        active_days=300,
+        total_days=365,
+        freshness_days=1,
+        longest_streak=60,
+        unique_authors=5,
     )
     assert h_good.health_grade in ("A", "B")
 
     # Low score → D or F
     h_bad = RepoHealth(
-        active_days=5, total_days=365, freshness_days=200,
-        longest_streak=2, unique_authors=1,
+        active_days=5,
+        total_days=365,
+        freshness_days=200,
+        longest_streak=2,
+        unique_authors=1,
     )
     assert h_bad.health_grade in ("D", "F")
 
@@ -570,6 +571,7 @@ def test_author_detailed_stats():
 def test_cli_summary():
     """Test the summary subcommand."""
     from gitpulse.cli import main
+
     with tempfile.TemporaryDirectory() as tmpdir:
         repo = _make_repo(Path(tmpdir))
         result = main(["summary", str(repo), "--since", "2025-01-01", "--until", "2025-12-31"])
@@ -579,6 +581,7 @@ def test_cli_summary():
 def test_cli_authors():
     """Test the authors subcommand."""
     from gitpulse.cli import main
+
     with tempfile.TemporaryDirectory() as tmpdir:
         repo = _make_repo(Path(tmpdir))
         result = main(["authors", str(repo), "--since", "2025-01-01", "--until", "2025-12-31"])
@@ -588,6 +591,7 @@ def test_cli_authors():
 def test_cli_timeline():
     """Test the timeline subcommand."""
     from gitpulse.cli import main
+
     with tempfile.TemporaryDirectory() as tmpdir:
         repo = _make_repo(Path(tmpdir))
         result = main(["timeline", str(repo), "--since", "2025-01-01", "--until", "2025-12-31"])
@@ -597,15 +601,28 @@ def test_cli_timeline():
 def test_cli_timeline_weekly():
     """Test the timeline subcommand with weekly granularity."""
     from gitpulse.cli import main
+
     with tempfile.TemporaryDirectory() as tmpdir:
         repo = _make_repo(Path(tmpdir))
-        result = main(["timeline", str(repo), "--since", "2025-01-01", "--until", "2025-12-31", "--granularity", "week"])
+        result = main(
+            [
+                "timeline",
+                str(repo),
+                "--since",
+                "2025-01-01",
+                "--until",
+                "2025-12-31",
+                "--granularity",
+                "week",
+            ]
+        )
         assert result == 0
 
 
 def test_cli_activity():
     """Test the activity subcommand."""
     from gitpulse.cli import main
+
     with tempfile.TemporaryDirectory() as tmpdir:
         repo = _make_repo(Path(tmpdir))
         result = main(["activity", str(repo), "--since", "2025-01-01", "--until", "2025-12-31"])
@@ -615,6 +632,7 @@ def test_cli_activity():
 def test_cli_compare():
     """Test the compare subcommand."""
     from gitpulse.cli import main
+
     with tempfile.TemporaryDirectory() as tmpdir:
         repo = _make_repo(Path(tmpdir))
         result = main(["compare", str(repo), "--since", "2025-01-01", "--until", "2025-12-31"])
@@ -624,6 +642,7 @@ def test_cli_compare():
 def test_cli_report():
     """Test the report subcommand."""
     from gitpulse.cli import main
+
     with tempfile.TemporaryDirectory() as tmpdir:
         repo = _make_repo(Path(tmpdir))
         result = main(["report", str(repo), "--since", "2025-01-01", "--until", "2025-12-31"])
@@ -633,15 +652,28 @@ def test_cli_report():
 def test_cli_report_markdown():
     """Test the report subcommand with markdown output."""
     from gitpulse.cli import main
+
     with tempfile.TemporaryDirectory() as tmpdir:
         repo = _make_repo(Path(tmpdir))
-        result = main(["report", str(repo), "--since", "2025-01-01", "--until", "2025-12-31", "--output", "markdown"])
+        result = main(
+            [
+                "report",
+                str(repo),
+                "--since",
+                "2025-01-01",
+                "--until",
+                "2025-12-31",
+                "--output",
+                "markdown",
+            ]
+        )
         assert result == 0
 
 
 def test_cli_health():
     """Test the health subcommand."""
     from gitpulse.cli import main
+
     with tempfile.TemporaryDirectory() as tmpdir:
         repo = _make_repo(Path(tmpdir))
         result = main(["health", str(repo), "--since", "2025-01-01", "--until", "2025-12-31"])
@@ -651,6 +683,7 @@ def test_cli_health():
 def test_cli_churn():
     """Test the churn subcommand."""
     from gitpulse.cli import main
+
     with tempfile.TemporaryDirectory() as tmpdir:
         repo = _make_repo(Path(tmpdir))
         result = main(["churn", str(repo), "--since", "2025-01-01", "--until", "2025-12-31"])
@@ -660,6 +693,7 @@ def test_cli_churn():
 def test_cli_heatmap():
     """Test the heatmap subcommand."""
     from gitpulse.cli import main
+
     with tempfile.TemporaryDirectory() as tmpdir:
         repo = _make_repo(Path(tmpdir))
         result = main(["heatmap", str(repo), "--since", "2025-01-01", "--until", "2025-12-31"])
@@ -669,6 +703,7 @@ def test_cli_heatmap():
 def test_cli_dashboard():
     """Test the dashboard subcommand."""
     from gitpulse.cli import main
+
     with tempfile.TemporaryDirectory() as tmpdir:
         repo = _make_repo(Path(tmpdir))
         result = main(["dashboard", str(repo), "--since", "2025-01-01", "--until", "2025-12-31"])
@@ -678,15 +713,19 @@ def test_cli_dashboard():
 def test_cli_json_output():
     """Test JSON output flag."""
     from gitpulse.cli import main
+
     with tempfile.TemporaryDirectory() as tmpdir:
         repo = _make_repo(Path(tmpdir))
-        result = main(["summary", str(repo), "--since", "2025-01-01", "--until", "2025-12-31", "--json"])
+        result = main(
+            ["summary", str(repo), "--since", "2025-01-01", "--until", "2025-12-31", "--json"]
+        )
         assert result == 0
 
 
 def test_cli_default_to_summary():
     """Test that running with no subcommand defaults to summary."""
     from gitpulse.cli import main
+
     with tempfile.TemporaryDirectory() as tmpdir:
         repo = _make_repo(Path(tmpdir))
         result = main([str(repo), "--since", "2025-01-01", "--until", "2025-12-31"])
@@ -696,6 +735,7 @@ def test_cli_default_to_summary():
 def test_cli_nonexistent_path():
     """Test error handling for nonexistent path."""
     from gitpulse.cli import main
+
     result = main(["summary", "/nonexistent/path/xyz123"])
     assert result == 1
 
@@ -703,20 +743,44 @@ def test_cli_nonexistent_path():
 def test_cli_author_sort():
     """Test authors with different sort options."""
     from gitpulse.cli import main
+
     with tempfile.TemporaryDirectory() as tmpdir:
         repo = _make_repo(Path(tmpdir))
         for sort_by in ["commits", "insertions", "deletions", "net", "active_days", "recent"]:
-            result = main(["authors", str(repo), "--since", "2025-01-01", "--until", "2025-12-31", "--sort-by", sort_by])
+            result = main(
+                [
+                    "authors",
+                    str(repo),
+                    "--since",
+                    "2025-01-01",
+                    "--until",
+                    "2025-12-31",
+                    "--sort-by",
+                    sort_by,
+                ]
+            )
             assert result == 0
 
 
 def test_cli_churn_sort():
     """Test churn with different sort options."""
     from gitpulse.cli import main
+
     with tempfile.TemporaryDirectory() as tmpdir:
         repo = _make_repo(Path(tmpdir))
         for sort_by in ["total", "insertions", "deletions", "commits", "authors"]:
-            result = main(["churn", str(repo), "--since", "2025-01-01", "--until", "2025-12-31", "--sort-by", sort_by])
+            result = main(
+                [
+                    "churn",
+                    str(repo),
+                    "--since",
+                    "2025-01-01",
+                    "--until",
+                    "2025-12-31",
+                    "--sort-by",
+                    sort_by,
+                ]
+            )
             assert result == 0
 
 
@@ -746,7 +810,9 @@ def test_streak_non_consecutive():
         repo = Path(tmpdir) / "gap-repo"
         repo.mkdir(parents=True, exist_ok=True)
         subprocess.run(["git", "init", str(repo)], capture_output=True, check=True)
-        subprocess.run(["git", "-C", str(repo), "config", "user.email", "test@test.com"], check=True)
+        subprocess.run(
+            ["git", "-C", str(repo), "config", "user.email", "test@test.com"], check=True
+        )
         subprocess.run(["git", "-C", str(repo), "config", "user.name", "Test User"], check=True)
 
         # Day 1
@@ -754,14 +820,16 @@ def test_streak_non_consecutive():
         subprocess.run(["git", "-C", str(repo), "add", "."], check=True)
         subprocess.run(
             ["git", "-C", str(repo), "commit", "-m", "Day 1"],
-            check=True, env=_git_env("2025-06-01T12:00:00"),
+            check=True,
+            env=_git_env("2025-06-01T12:00:00"),
         )
         # Day 2
         (repo / "b.txt").write_text("b\n")
         subprocess.run(["git", "-C", str(repo), "add", "."], check=True)
         subprocess.run(
             ["git", "-C", str(repo), "commit", "-m", "Day 2"],
-            check=True, env=_git_env("2025-06-02T12:00:00"),
+            check=True,
+            env=_git_env("2025-06-02T12:00:00"),
         )
         # Skip day 3
         # Day 4
@@ -769,14 +837,16 @@ def test_streak_non_consecutive():
         subprocess.run(["git", "-C", str(repo), "add", "."], check=True)
         subprocess.run(
             ["git", "-C", str(repo), "commit", "-m", "Day 4"],
-            check=True, env=_git_env("2025-06-04T12:00:00"),
+            check=True,
+            env=_git_env("2025-06-04T12:00:00"),
         )
         # Day 5
         (repo / "d.txt").write_text("d\n")
         subprocess.run(["git", "-C", str(repo), "add", "."], check=True)
         subprocess.run(
             ["git", "-C", str(repo), "commit", "-m", "Day 5"],
-            check=True, env=_git_env("2025-06-05T12:00:00"),
+            check=True,
+            env=_git_env("2025-06-05T12:00:00"),
         )
 
         pulse = GitPulse(
@@ -810,6 +880,7 @@ def test_repo_stats_from_pulse():
         pulse.analyze()
 
         from gitpulse.stats import RepoStats
+
         stats = RepoStats.from_pulse(pulse)
         assert stats.total_commits == 3
         assert stats.unique_authors == 1
@@ -819,6 +890,7 @@ def test_repo_stats_from_pulse():
 def test_repo_stats_format_numbers():
     """Test RepoStats.format_numbers output."""
     from gitpulse.stats import RepoStats
+
     stats = RepoStats(
         total_commits=100,
         total_insertions=5000,
@@ -871,6 +943,7 @@ def test_heatmap_render():
         pulse.analyze()
 
         from gitpulse.heatmap import render_heatmap
+
         # Should not raise
         render_heatmap(pulse, datetime(2025, 1, 1), datetime(2025, 12, 31))
 
@@ -894,9 +967,11 @@ def test_dashboard_render():
         pulse.analyze()
 
         from gitpulse.display import render_dashboard
+
         render_dashboard(pulse, datetime(2025, 1, 1), datetime(2025, 12, 31))
 
 
 if __name__ == "__main__":
     import pytest
+
     pytest.main([__file__, "-v"])
