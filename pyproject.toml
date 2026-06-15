@@ -29,8 +29,27 @@ classifiers = [
 [project.scripts]
 gitpulse = "gitpulse.cli:main"
 
-[project.optional-dependencies]
-dev = ["pytest>=7.0", "ruff>=0.15"]
+[dependency-groups]
+dev = [
+    "pytest>=7.0",
+    "ruff>=0.5.0",
+    "ty>=0.9.0",
+]
 
 [tool.setuptools.packages.find]
 include = ["gitpulse*"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py310"
+
+[tool.ruff.lint]
+select = ["ALL"]
+ignore = ["D", "COM812", "ISC001"]
+
+[tool.pytest.ini_options]
+addopts = "-v"
+testpaths = ["gitpulse/tests.py"]
+
+[tool.ty]
+exclude = ["gitpulse/tests.py"]
