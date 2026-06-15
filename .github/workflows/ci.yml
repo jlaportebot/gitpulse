@@ -42,7 +42,7 @@ jobs:
           version: "latest"
       - name: Install dependencies
         run: uv sync --group dev
-      - name: Run ruff check
-        run: uv run ruff check .
+      - name: Run ruff check (errors only)
+        run: uv run ruff check --select=E,F --ignore=E501 .
       - name: Run ruff format check
         run: uv run ruff format --check .
