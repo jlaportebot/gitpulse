@@ -52,4 +52,4 @@ addopts = "-v"
 testpaths = ["gitpulse/tests.py"]
 
 [tool.ty]
-exclude = ["gitpulse/tests.py"]
+src = ["gitpulse"]
